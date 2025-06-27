@@ -549,3 +549,14 @@ def test_const_ref_caster():
     assert m.takes_const_ptr(x) == 5
     assert m.takes_const_ref(x) == 4
     assert m.takes_const_ref_wrap(x) == 4
+
+
+def test_overload_resolution():
+    base = m.Base()
+    m.takes_Base(base)
+    m.takes_Base([base])
+
+    derived = m.Derived()
+
+    m.takes_Base(derived)
+    m.takes_Base([derived])

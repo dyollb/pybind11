@@ -8,6 +8,7 @@
 */
 
 #include <pybind11/complex.h>
+#include <pybind11/stl.h>
 
 #include "pybind11_tests.h"
 
@@ -386,6 +387,20 @@ TEST_SUBMODULE(builtin_casters, m) {
     m.def("takes_const_ref", [](const ConstRefCasted &x) { return x.tag; });
     m.def("takes_const_ref_wrap",
           [](std::reference_wrapper<const ConstRefCasted> x) { return x.get().tag; });
+
+    struct Base {
+        virtual ~Base() = default;
+    };
+    struct Derived : Base {};
+
+    py::class_<Base, std::shared_ptr<Base>>(m, "Base").def(
+        py::init<>([]() { return std::make_shared<Base>(); }));
+    py::class_<Derived, std::shared_ptr<Derived>, Base>(m, "Derived").def(py::init<>([]() {
+        return std::make_shared<Derived>();
+    }));
+
+    m.def("takes_Base", [](const std::vector<std::shared_ptr<Base>> &) {});
+    m.def("takes_Base", [](std::shared_ptr<Base> &) {});
 
     PYBIND11_WARNING_POP
 }
